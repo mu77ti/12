@@ -1,27 +1,22 @@
-from flask import Flask, render_template, request
+import streamlit as st
 
-app = Flask(__name__)
+st.set_page_config(page_title="Kalkulator Normalitas", layout="centered")
 
-def hitung_normalitas(berat, massa_molar, volume_ml, valensi):
-    volume_liter = volume_ml / 1000
-    mol = berat / massa_molar
-    normalitas = (mol / volume_liter) * valensi
-    return normalitas
+st.title("🧪 Kalkulator Normalitas Larutan")
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    hasil = None
-    if request.method == 'POST':
+with st.form("form_normalitas"):
+    berat = st.number_input("Berat zat (gram):", min_value=0.0, format="%.4f")
+    massa_molar = st.number_input("Massa molar (g/mol):", min_value=0.0001, format="%.4f")
+    volume_ml = st.number_input("Volume larutan (mL):", min_value=0.0, format="%.4f")
+    valensi = st.number_input("Valensi zat:", min_value=1, step=1)
+
+    submitted = st.form_submit_button("Hitung Normalitas")
+
+    if submitted:
         try:
-            berat = float(request.form['berat'])
-            massa_molar = float(request.form['massa_molar'])
-            volume_ml = float(request.form['volume_ml'])
-            valensi = int(request.form['valensi'])
-
-            hasil = hitung_normalitas(berat, massa_molar, volume_ml, valensi)
-        except:
-            hasil = "Input tidak valid!"
-    return render_template('index.html', hasil=hasil)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+            volume_liter = volume_ml / 1000
+            mol = berat / massa_molar
+            normalitas = (mol / volume_liter) * valensi
+            st.success(f"Normalitas larutan: **{normalitas:.4f} N**")
+        except Exception as e:
+            st.error("Terjadi kesalahan saat menghitung. Pastikan input valid.")
